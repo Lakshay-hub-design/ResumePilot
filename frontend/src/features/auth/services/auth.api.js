@@ -10,10 +10,11 @@ export async function register({ username, email, password }){
         const res = await api.post('/api/auth/register',{
             username, email, password
         })
-
         return res.data
     } catch (err) {
-        console.log(err);
+        if (err.response && err.response.data) {
+            throw err.response.data;
+        }
     }
 }
 
@@ -25,7 +26,9 @@ export async function login({ email, password }) {
 
         return res.data
     } catch (err) {
-        console.log(err)
+        if (err.response && err.response.data) {
+            throw err.response.data;
+        }
     }
 }
 
@@ -39,11 +42,11 @@ export async function logout(){
     }
 }
 
-export async function get() {
+export async function getMe() {
     try {
         const res = await api.get('/api/auth/get-me')
 
-        return res.data
+        return res.data 
     } catch (err) {
         console.log(err)
     }
