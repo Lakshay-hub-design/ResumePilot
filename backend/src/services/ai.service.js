@@ -66,10 +66,6 @@ async function generateInterviewReport({resume, selfDescription, jobDescription}
         console.log(result.error.format())
         throw new Error("Invalid AI response")
     }
-
-    if (result.success){
-        console.log('working')
-    }
     
     return result.data
 }
