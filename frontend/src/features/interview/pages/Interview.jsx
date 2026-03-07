@@ -1,109 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import '../style/interview.scss'
-
-const Report = {
-  matchScore: 85,
-  technicalQuestions: [
-    {
-      question: "Explain how JWT authentication works in your e-commerce application and how you ensured security.",
-      intention: "To assess understanding of authentication implementation and security best practices",
-      answer: "JWT authentication involves three parts: header, payload, and signature. In BagCart, after login the server creates a signed JWT containing userId and role, returns it to the client, and the client stores it in HttpOnly cookies. On each request the token is verified with the secret key, extracting user info and attaching it to req.user. Security measures: use strong random secret, set short expiry, refresh tokens, store in HttpOnly secure cookies, validate on every route, and revoke on logout."
-    },
-    {
-      question: "How did you structure your MongoDB schemas for the e-commerce product and order modules?",
-      intention: "To evaluate database design skills and normalization choices",
-      answer: "Products schema: title, slug, description, price, discount, stock, category ref, images array, owner ref, timestamps. Orders schema: user ref, products array with product ref, quantity, price snapshot, total, status enum, shippingAddress sub-doc, paymentId, createdAt. Index on user and status for fast lookups; embed frequently-accessed immutable data like price snapshot; reference volatile data like product details."
-    },
-    {
-      question: "Describe a performance bottleneck you faced in your JobTracker dashboard and how you optimized it.",
-      intention: "To check awareness of performance issues and optimization techniques",
-      answer: "Initial /analytics endpoint aggregated all jobs on every request causing O(n) calculations. Optimized by: 1) caching counts in Redis with 5-minute TTL, 2) adding compound index on user+status+date, 3) implementing pagination and server-side aggregation pipeline instead of in-memory loops, reducing response time from ~800ms to ~120ms."
-    },
-  ],
-  behaviouralQuestions: [
-    {
-      question: "Tell me about a time you received critical feedback on your code during a team review.",
-      intention: "To see openness to feedback and growth mindset",
-      answer: "Use STAR: During JobTracker PR, reviewer pointed out missing input validation. I acknowledged, asked clarifying questions, added Joi schemas, wrote unit tests covering edge cases, and updated PR. Outcome: merged with zero bugs reported later. Lesson: adopt defensive coding and always add validation layer early."
-    },
-    {
-      question: "Describe a situation where you had to balance shipping fast vs. writing maintainable code.",
-      intention: "To understand prioritization and code quality values",
-      answer: "BagCart launch deadline clashed with adding TypeScript. Prioritized shipping MVP with plain JS but added ESLint rules and JSDoc comments to keep codebase clean. After launch, created tech-debt ticket and migrated file-by-file to TypeScript in next sprint, maintaining backward compatibility. Shows pragmatism while not letting tech debt accumulate indefinitely."
-    },
-    {
-      question: "Give an example of how you explained a technical concept to a non-technical stakeholder.",
-      intention: "To assess communication skills and empathy",
-      answer: "Client asked why pages load slowly. I compared caching to keeping frequently bought items near cashier instead of warehouse, showed before/after metrics using simple bar chart, and proposed phased rollout. Result: stakeholder approved Redis budget within same week."
-    }
-  ],
-  skillGaps: [
-    {
-      skill: "System design knowledge beyond basic MERN",
-      severity: "high"
-    },
-    {
-      skill: "Redis or caching in production",
-      severity: "medium"
-    },
-    {
-      skill: "CI/CD pipeline setup (GitHub Actions, Docker)",
-      severity: "medium"
-    },
-    {
-      skill: "Cloud deployment on AWS/GCP",
-      severity: "medium"
-    },
-  ],
-  preparationPlan: [
-    {
-      day: 1,
-      focus: "System design fundamentals",
-      tasks: [
-        "Read 'System Design Interview Volume 1' chapters 1-3",
-        "Watch Gaurav Sen's 'Design a URL shortener' video",
-        "Practice drawing component diagram for BagCart on excalidraw"
-      ]
-    },
-    {
-      day: 2,
-      focus: "Redis & caching",
-      tasks : [
-        "Complete Redis crash course on Redis University",
-        "Integrate Redis into JobTracker analytics endpoint",
-        "Add cache-aside helper and test TTL invalidation"
-      ]
-    },
-    {
-      day: 3,
-      focus: "Testing & clean code",
-      tasks: [
-        "Write Jest unit tests for BagCart auth middleware",
-        "Add integration tests for /api/products using Supertest",
-        "Refactor to 80% code coverage"
-      ]
-    },
-    {
-      day: 4,
-      focus: "CI/CD & Docker",
-      tasks: [
-        "Dockerize BagCart frontend and backend",
-        "Create GitHub Actions workflow for test & build",
-        "Deploy to AWS Elastic Beanstalk or Render"
-      ]
-    },
-    {
-      day: 5,
-      focus: "Mock interviews",
-      tasks: [
-        "Schedule peer mock on Pramp",
-        "Record yourself explaining JWT flow in 5 min",
-        "Redo system design question with timing constraints"
-      ]
-    }
-  ],   
-}
-
+import { useInterview } from '../hooks/useInterview'
+import { useParams } from 'react-router'
 
 const NAV_ITEMS = [
     { id: 'technical', label: 'Technical Questions', icon: (<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>) },
@@ -159,12 +57,27 @@ const RoadMapDay = ({ day }) => (
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
     const [ activeNav, setActiveNav ] = useState('technical')
+    const { report, getReportById, loading } = useInterview()
+    const { interviewId } = useParams()
 
+    useEffect(() => {
+      if(interviewId){
+        getReportById(interviewId)
+      }
+    }, [interviewId])
+
+    if(loading || !report){
+        return (
+            <main className='loading-screen'>
+                <h1>Loading your interview plan...</h1>
+            </main>
+        )
+    }
+    
 
     const scoreColor =
-        Report.matchScore >= 80 ? 'score--high' :
-            Report.matchScore >= 60 ? 'score--mid' : 'score--low'
-
+        report.matchScore >= 80 ? 'score--high' :
+            report.matchScore >= 60 ? 'score--mid' : 'score--low'
 
     return (
         <div className='interview-page'>
@@ -200,10 +113,10 @@ const Interview = () => {
                         <section>
                             <div className='content-header'>
                                 <h2>Technical Questions</h2>
-                                <span className='content-header__count'>{Report.technicalQuestions.length} questions</span>
+                                <span className='content-header__count'>{report.technicalQuestions.length} questions</span>
                             </div>
                             <div className='q-list'>
-                                {Report.technicalQuestions.map((q, i) => (
+                                {report.technicalQuestions.map((q, i) => (
                                     <QuestionCard key={i} item={q} index={i} />
                                 ))}
                             </div>
@@ -214,10 +127,10 @@ const Interview = () => {
                         <section>
                             <div className='content-header'>
                                 <h2>Behavioral Questions</h2>
-                                <span className='content-header__count'>{Report.behaviouralQuestions.length} questions</span>
+                                <span className='content-header__count'>{report.behaviouralQuestions.length} questions</span>
                             </div>
                             <div className='q-list'>
-                                {Report.behaviouralQuestions.map((q, i) => (
+                                {report.behaviouralQuestions.map((q, i) => (
                                     <QuestionCard key={i} item={q} index={i} />
                                 ))}
                             </div>
@@ -228,10 +141,10 @@ const Interview = () => {
                         <section>
                             <div className='content-header'>
                                 <h2>Preparation Road Map</h2>
-                                <span className='content-header__count'>{Report.preparationPlan.length}-day plan</span>
+                                <span className='content-header__count'>{report.preparationPlan.length}-day plan</span>
                             </div>
                             <div className='roadmap-list'>
-                                {Report.preparationPlan.map((day) => (
+                                {report.preparationPlan.map((day) => (
                                     <RoadMapDay key={day.day} day={day} />
                                 ))}
                             </div>
@@ -248,7 +161,7 @@ const Interview = () => {
                     <div className='match-score'>
                         <p className='match-score__label'>Match Score</p>
                         <div className={`match-score__ring ${scoreColor}`}>
-                            <span className='match-score__value'>{Report.matchScore}</span>
+                            <span className='match-score__value'>{report.matchScore}</span>
                             <span className='match-score__pct'>%</span>
                         </div>
                         <p className='match-score__sub'>Strong match for this role</p>
@@ -260,7 +173,7 @@ const Interview = () => {
                     <div className='skill-gaps'>
                         <p className='skill-gaps__label'>Skill Gaps</p>
                         <div className='skill-gaps__list'>
-                            {Report.skillGaps.map((gap, i) => (
+                            {report.skillGaps.map((gap, i) => (
                                 <span key={i} className={`skill-tag skill-tag--${gap.severity}`}>
                                     {gap.skill}
                                 </span>
