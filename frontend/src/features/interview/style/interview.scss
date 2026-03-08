@@ -112,6 +112,8 @@ $severity-low: #3fb950;
 
 // ── Center Content ────────────────────────────────────────────────────────────
 .interview-content {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     padding: 1.75rem 2rem;
     overflow-y: auto;
@@ -120,12 +122,37 @@ $severity-low: #3fb950;
     padding-bottom: 5rem;
     align-items: flex-start;
 
+    .interview-back {
+    margin-bottom: 1rem;
+}
 
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid $border-color;
+    color: $text-muted;
+    padding: 0.35rem 0.7rem;
+    border-radius: 0.4rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
 
+    svg {
+        stroke: $text-muted;
+    }
 
+    &:hover {
+        background-color: $bg-panel;
+        color: $text-primary;
+        border-color: lighten($border-color, 8%);
 
-
-
+        svg {
+            stroke: $text-primary;
+        }
+    }
+}
 
     section {
         min-height: 100%;
@@ -476,4 +503,29 @@ $severity-low: #3fb950;
         background-color: rgba($severity-low, 0.1);
         border-color: rgba($severity-low, 0.25);
     }
+}
+
+
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.resume-message {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #aaa;
 }

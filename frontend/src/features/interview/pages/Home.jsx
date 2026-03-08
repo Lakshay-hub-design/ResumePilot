@@ -7,7 +7,6 @@ const Home = () => {
 
     const { reports, loading, generateReport } = useInterview()
     const navigate = useNavigate()
-    console.log(reports);
     
     const [jobDescription, setJobDescription] = useState('')
     const [selfDescription, setSelfDescripton] = useState('')
@@ -17,14 +16,6 @@ const Home = () => {
         const resumeFile = resumeInputRef.current.files[0]
         const data = await generateReport({ jobDescription, selfDescription, resumeFile})
         navigate(`/interview/${data._id}`)
-    }
-
-    if (loading) {
-        return (
-            <main className='loading-screen'>
-                <h1>Loading your interview plan...</h1>
-            </main>
-        )
     }
 
   return (
@@ -125,7 +116,21 @@ const Home = () => {
                 </div>
             </div>
 
-            {reports.length > 0 && (
+            {loading ? (
+                <section className="recent-reports">
+                    <h2>My Recent Interview Plans</h2>
+
+                    <ul className="reports-list">
+                    {[1,2,3].map((i) => (
+                        <li key={i} className="report-item skeleton">
+                        <div className="skeleton-title"></div>
+                        <div className="skeleton-meta"></div>
+                        <div className="skeleton-score"></div>
+                        </li>
+                    ))}
+                    </ul>
+                </section>
+            ) : reports.length > 0 && (
                 <section className='recent-reports'>
                     <h2>My Recent Interview Plans</h2>
                     <ul className='reports-list'>
