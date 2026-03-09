@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import '../style/home.scss'
 import { useInterview } from '../hooks/useInterview'
 import { useNavigate } from 'react-router'
+import { RiInformationLine } from '@remixicon/react'
 
 const Home = () => {
 
@@ -26,6 +27,48 @@ const Home = () => {
                 <h1>Create Your Custom <span className='highlight'>Interview Plan</span></h1>
                 <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
             </header>
+
+            <div className="home-layout">
+                <aside className="tips-panel">
+                <div className="tips-card">
+                <div className='left_header'>
+                    <RiInformationLine 
+                        size={20} 
+                        color='#ff2d78'
+                    />
+                    <h3>Tips / Guide</h3>
+                </div>
+
+                <div className="tip-block">
+                    <h4>How to use</h4>
+                    <p>
+                        1. Paste the job description of the role you are applying for.<br></br>
+                        2. Upload your resume or write a quick self-description.<br></br>
+                        3. Click "Generate Interview Strategy" to get a personalized plan..
+                    </p>
+                </div>
+
+                <div className="tip-block">
+                    <h4>Example JD</h4>
+                    <p>Providing a detailed job description helps the AI
+generate more accurate interview questions and
+a better preparation strategy.</p>
+                </div>
+
+                <div className="tip-block">
+                    <h4>Interview Tips</h4>
+                    <p>General advice on how to handle behavioral and technical questions.</p>
+                </div>
+                </div>
+
+                <div className="pro-tip">
+                <h4>PRO TIP</h4>
+                <p>
+                    The more specific the Job Description, the better our AI can tailor
+                    your practice questions!
+                </p>
+                </div>
+            </aside>
 
             {/* Main Card */}
             <div className='interview-card'>
@@ -116,34 +159,37 @@ const Home = () => {
                 </div>
             </div>
 
-            {loading ? (
-                <section className="recent-reports">
-                    <h2>My Recent Interview Plans</h2>
+            <aside className="history-panel">
+                <h2>My Recent Interview Plans</h2>
 
-                    <ul className="reports-list">
-                    {[1,2,3].map((i) => (
-                        <li key={i} className="report-item skeleton">
-                        <div className="skeleton-title"></div>
-                        <div className="skeleton-meta"></div>
-                        <div className="skeleton-score"></div>
-                        </li>
+                <div className="history-list">
+                    {reports.map(report => (
+                    <div
+                        key={report._id}
+                        className="history-card"
+                        onClick={() => navigate(`/interview/${report._id}`)}
+                    >
+                        <h4>{report.title || 'Untitled Position'}</h4>
+                        <p className="history-date">
+                        Generated on {new Date(report.createdAt).toLocaleDateString()}
+                        </p>
+
+                        <div className="history-score">
+                        <span>Match Score: {report.matchScore}%</span>
+                        <div className="score-bar">
+                            <div
+                            className="score-fill"
+                            style={{ width: `${report.matchScore}%` }}
+                            />
+                        </div>
+                        </div>
+                    </div>
                     ))}
-                    </ul>
-                </section>
-            ) : reports.length > 0 && (
-                <section className='recent-reports'>
-                    <h2>My Recent Interview Plans</h2>
-                    <ul className='reports-list'>
-                        {reports.map(report => (
-                            <li key={report._id} className='report-item' onClick={() => navigate(`/interview/${report._id}`)}>
-                                <h3>{report.title || 'Untitled Position'}</h3>
-                                <p className='report-meta'>Generated on {new Date(report.createdAt).toLocaleDateString()}</p>
-                                <p className={`match-score ${report.matchScore >= 80 ? 'score--high' : report.matchScore >= 60 ? 'score--mid' : 'score--low'}`}>Match Score: {report.matchScore}%</p>
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            )}
+
+                    <button className="view-history">View All History</button>
+                </div>
+            </aside>
+            </div>
 
             <footer className='page-footer'>
                 <a href='#'>Privacy Policy</a>
